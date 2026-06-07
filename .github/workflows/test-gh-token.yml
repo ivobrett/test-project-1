@@ -1,0 +1,24 @@
+name: Test GH_TOKEN in after_run
+on:
+  push:
+    branches: [ agent/IVO-40 ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check GH_TOKEN availability (during job)
+        run: echo "GH_TOKEN is set during job: ${{ env.GITHUB_TOKEN != '' }}"
+
+      # This step will run after the job, regardless of the job's result, because of `if: always()`
+      - name: Check GH_TOKEN in after_run
+        if: always()
+        run: |
+          if [ -z "${GITHUB_TOKEN}" ]; then
+            echo "GH_TOKEN is NOT set in after_run"
+            exit 1
+          else
+            echo "GH_TOKEN is set in after_run"
+          fi
